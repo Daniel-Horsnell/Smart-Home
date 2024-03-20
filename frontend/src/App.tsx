@@ -3,8 +3,8 @@ import { Button } from '@mui/material';
 import DensityMediumIcon from '@mui/icons-material/DensityMedium';
 import Home from './components/Home';
 import SidePanel from './components/SidePanel';
-
-const pages = ['Home'];
+import Plants from './components/Plants';
+import { pages } from './shared/constants';
 
 const App: React.FC = () => {
   const [page, setPage] = useState<string>('Home')
@@ -22,6 +22,8 @@ const App: React.FC = () => {
     switch (page) {
       case pages[0]:
         return <Home />
+      case pages[1]:
+        return <Plants />
       default:
         return <Home />
     }
