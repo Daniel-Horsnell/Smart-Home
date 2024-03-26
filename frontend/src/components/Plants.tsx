@@ -1,7 +1,9 @@
 import { WidthFull } from "@mui/icons-material";
-import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { plants } from "../shared/constants";
+import { Gauge, gaugeClasses } from '@mui/x-charts/Gauge';
+import { capitalizeFirstLetter } from "../shared/helperFunctions";
 
 interface Response {
   data: string;
@@ -9,13 +11,14 @@ interface Response {
 
 function Plants() {
   const [moistureData, setMoistureData] = useState<{[key: string]: string}>({});
-  const [fetchedChangeFlag, setFetchedChangeFlag] = useState<boolean>(false);
+  const [error, setError] = useState<{[key: string]: boolean}>({});
+  const [amountFetches, setAmountFetches] = useState<number>(0);
 
   useEffect(() => {
     plants.forEach(plant => {
       fetchData(plant)
     })
-    setFetchedChangeFlag(!fetchedChangeFlag)
+    setAmountFetches(amountFetches + 1)
   }, [])
 
 
@@ -24,23 +27,64 @@ function Plants() {
       const response = await fetch('http://localhost:5000/plant/moisture/' + plant);
       console.log(response.headers)
       const responseData: Response = await response.json();
-      let tempMoistureData = moistureData;
-      tempMoistureData[plant] = responseData.data;
-      console.log(responseData.data)
-      setMoistureData(tempMoistureData)
+      setMoistureData(prevData => ({
+        ...prevData,
+        [plant]: responseData.data
+      }));
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+  
+  const sendData = async (plant: string, moisturePercentage: number) => {
+    const response = await fetch('https://api.example.com/endpoint', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        moisture: moisturePercentage,
+      }),
+    });
+
+    if (!response.ok) {
+      setError(prevData => ({
+        ...prevData,
+        [plant]: false
+      }));
+    }
+  }
 
   return(
-    <div style={{width: '100%', backgroundColor: '#e6e6e6', overflowX: 'hidden'}}>
-      <Grid container spacing={2} style={{width: '100%', margin: '1px', height: '-webkit-fill-available'}} key={String(fetchedChangeFlag)}>
-          {plants.map(plant => {return(
-            <Grid item xs={12} md={6} >
-            <Box sx={{width: '100%', height: 'fit-content', borderRadius: 5, bgcolor: '#FFFFFF', border: '1px solid lightGrey'}}>
+    <div style={{width: '100%', backgroundColor: '#e6e6e6', overflowX: 'hidden'}} key={String(amountFetches)}>
+      <Grid container spacing={2} style={{width: '100%', margin: '1px', height: '-webkit-fill-available'}} >
+          {moistureData && plants.map(plant => {return(
+            <Grid item xs={12} md={6} key={moistureData[plant]}>
+            <Box sx={{width: '100%', height: 'fit-content', borderRadius: 5, bgcolor: '#FFFFFF', border: '1px solid lightGrey'}} key={moistureData[plant]}>
               <div style={{margin: '1rem', height: 'fit-content'}}>
-              <Typography style={{alignSelf: 'end'}}>{plant} moisture: {moistureData?.[plant]}</Typography>
+              <Typography style={{alignSelf: 'start'}} key={moistureData[plant]}>{capitalizeFirstLetter(plant)} Moisture</Typography>
+              <Divider />
+              <div style={{ height: '25vh'}}>
+                
+                <Gauge
+                    value={+moistureData[plant]}
+                    startAngle={-100}
+                    endAngle={100}
+                    cornerRadius='10%'
+                    outerRadius='100%'
+                    innerRadius='60%'
+                    sx={
+                      (theme) => ({
+                        [`& .${gaugeClasses.valueText}`]: {
+                          fontSize: 40,
+                        },
+                        [`& .${gaugeClasses.valueArc}`]: {
+                          fill: '#036f7a',
+                        },
+                      })
+                    }
+                  />
+              </div>
               </div>
             </Box> 
             </Grid>)

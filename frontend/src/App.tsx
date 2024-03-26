@@ -37,7 +37,7 @@ const App: React.FC = () => {
         </Button>
       </div>
       <SidePanel page={page} open={open} onClose={closeSidePanel} onOpen={openSidePanel} setPage={setPage}/>
-      {loadPage()}
+      {page == pages[0]? <Home/> : <Plants/>}
     </div>
   );
 };

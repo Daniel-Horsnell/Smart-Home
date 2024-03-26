@@ -1,6 +1,7 @@
 import random
 from flask import Flask, jsonify
 from flask_cors import CORS
+from flask import request
 
 app = Flask(__name__)
 CORS(app)
@@ -20,16 +21,20 @@ def echo(input_string):
     else:
         return jsonify({'data': input_string})
     
-@app.route('/plant/moisture/<input_string>')
+@app.route('/plant/moisture/<input_string>', methods = ['GET', 'POST'])
 def get_moisture(input_string):
-    print(input_string)
-    if input_string == 'tomato':
-        return jsonify({'data': get_moisture_tomato()})
-    elif input_string == 'chilli':
-        return jsonify({'data': get_moisture_chilli()})
+    if request.method == 'GET':
+      if input_string == 'tomato':
+          return jsonify({'data': get_moisture_tomato()})
+      elif input_string == 'chilli':
+          return jsonify({'data': get_moisture_chilli()})
+      else:
+          return 'you failed'
+    elif request.method == 'POST':
+        data = request.form
+        print(data)
     else:
-        print('wrong')
-        return 'you failed'
+        return 'What?'
 
 
 
