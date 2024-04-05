@@ -24,8 +24,9 @@ function Plants() {
 
   const fetchData = async (plant: string) => {
     try {
-      const response = await fetch('http://localhost:5000/plant/moisture/' + plant);
+      const response = await fetch('http://192.168.0.212/moisture/' + plant);
       console.log(response.headers)
+      console.log(response)
       const responseData: Response = await response.json();
       setMoistureData(prevData => ({
         ...prevData,
@@ -81,8 +82,15 @@ function Plants() {
                         [`& .${gaugeClasses.valueArc}`]: {
                           fill: '#036f7a',
                         },
+                        [`& .${gaugeClasses.root}`]: {
+                          animation: 'linear',
+                          animationDuration: '3s',
+                        },
                       })
                     }
+                    text={
+                      ({ value }) => `${value} %`
+                   }
                   />
               </div>
               </div>
