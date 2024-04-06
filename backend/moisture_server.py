@@ -45,11 +45,11 @@ s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(addr)
 s.listen()
 
-print('Listening on', addr)
+# Turn LED on when connected
+led = machine.Pin(0, machine.Pin.OUT)
+led.on()
 
 # Initialize variables
-state = "OFF"
-random_value = 0
 tomato_sensor = machine.ADC(machine.Pin(27))
 chilli_sensor = machine.ADC(machine.Pin(26))
 
@@ -92,3 +92,4 @@ while True:
     except OSError as e:
         conn.close()
         print('Connection closed')
+        led.off()
