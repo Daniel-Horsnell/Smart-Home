@@ -12,8 +12,8 @@ upper_range = 63000
 lower_range = 0
 
 # Wi-Fi credentials
-ssid = 'Sophie&Dan'
-password = 'sophladeshay2101'
+ssid = ''
+password = ''
 
 
 # Connect to WLAN
