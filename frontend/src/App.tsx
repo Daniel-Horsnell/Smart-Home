@@ -5,6 +5,7 @@ import Home from './components/Home';
 import SidePanel from './components/SidePanel';
 import Plants from './components/Plants';
 import { pages } from './shared/constants';
+import Computer from './components/Computer';
 
 const App: React.FC = () => {
   const [page, setPage] = useState<string>('Home')
@@ -21,11 +22,11 @@ const App: React.FC = () => {
   const loadPage = () => {
     switch (page) {
       case pages[0]:
-        return <Home />
-      case pages[1]:
         return <Plants />
+      case pages[1]:
+        return <Computer />
       default:
-        return <Home />
+        return <Plants />
     }
   }
 
@@ -37,7 +38,7 @@ const App: React.FC = () => {
         </Button>
       </div>
       <SidePanel page={page} open={open} onClose={closeSidePanel} onOpen={openSidePanel} setPage={setPage}/>
-      {page == pages[0]? <Home/> : <Plants/>}
+      {page == pages[0]? <Plants/> : <Computer/>}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import React from "react";
-import { icons } from "../shared/constants";
+import { icons, pages } from "../shared/constants";
 
 interface SidePanelProps {
   page: string;
@@ -20,7 +20,7 @@ function SidePanel({page, open, onClose, onOpen, setPage}: SidePanelProps) {
       onKeyDown={onClose}
     >
       <List>
-        {['Home', 'Plants'].map((text, index) => (
+        {pages.map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={() => setPage(text)}>
               <ListItemIcon>

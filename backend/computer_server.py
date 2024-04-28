@@ -2,14 +2,24 @@ import network
 import socket
 import time
 import random
-import machine
+import machine, neopixel
 import json
+import machine, neopixel
+import time
+import requests
 
-plant1 = 'tomato'
-plant2 = 'chilli'
+def set_one_led(np, index, colour):
+    np[index] = colour
+    np.write()
+    
+def set_all_leds(np, colour):
+    i = 0
+    while i < 8:
+        np[i] = colour
+        i += 1
+    np.write()
 
-upper_range = 63000
-lower_range = 0
+np = neopixel.NeoPixel(machine.Pin(5), 8)
 
 # Wi-Fi credentials
 ssid = ''
@@ -50,8 +60,7 @@ led = machine.Pin(0, machine.Pin.OUT)
 led.on()
 
 # Initialize variables
-tomato_sensor = machine.ADC(machine.Pin(27))
-chilli_sensor = machine.ADC(machine.Pin(26))
+np = neopixel.NeoPixel(machine.Pin(5), 8)
 
 # Main loop to listen for connections
 while True:
@@ -60,32 +69,32 @@ while True:
         print('Got a connection from', addr)
         
         # Receive and parse the request
-        request = conn.recv(1024)
+        request = conn.recv(2048)
         request = str(request)
         print('Request content = %s' % request)
 
         try:
-            request = request.split()[1]
+            url_extension = request.split()[1]
             print('Request:', request)
         except IndexError:
             pass
-        print('/moisture/' + plant1)
         # Process the request and update variables
-        if request == '/moisture/' + plant1:
-            percentage = 100*(tomato_sensor.read_u16() - lower_range)/(upper_range-lower_range)
-            print('here')
+        if url_extension == '/pc_on':
+            print('pc on')
             conn.send('HTTP/1.0 200 OK\r\nContent-type: application/json\r\nAccess-Control-Allow-Origin: http://localhost:3000\r\n\r\n')
-            string_data = """{"data":  "%d"}""" %(percentage)
-            response = json.loads(string_data)
-            conn.send(string_data)
-        elif request == '/moisture/' + plant2:
-            percentage = 100*(chilli_sensor.read_u16() - lower_range)/(upper_range-lower_range)
-            print('here')
-            conn.send('HTTP/1.0 200 OK\r\nContent-type: application/json\r\nAccess-Control-Allow-Origin: http://localhost:3000\r\n\r\n')
-            string_data = """{"data":  "%d"}""" %(percentage)
-            response = json.loads(string_data)
-            conn.send(string_data)
-        # Send the HTTP response and close the connection
+            
+        elif url_extension == '/set_colour':
+            body = request.split('\\r\\n\\r\\n')[1]
+            body = body.replace("'", "")
+            print("Colour:")
+            print(body)
+            conn.send('HTTP/1.0 200 OK\r\n\r\n')
+            colours = json.loads(body)
+            colour = (colours["r"], colours["g"], colours["b"])
+            if colours["index"] == -1:
+                set_all_leds(np, colour)
+            else:
+                set_one_led(np, colours["index"], colour)
         
         conn.close()
 
@@ -93,5 +102,3 @@ while True:
         conn.close()
         print('Connection closed')
         led.off()
-
-led.off()
